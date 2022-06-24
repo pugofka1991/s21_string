@@ -59,37 +59,37 @@ START_TEST(s21_memchr_10) {
 END_TEST
 
 START_TEST(s21_memcmp_1) {
-    unsigned char s1[5] = "1234\0";
-    unsigned char s2[2] = "1\0";;
-    ck_assert_int_eq(s21_memcmp(s1, s2, 20), 50);
+    unsigned char s1[10] = "1234\0";
+    unsigned char s2[10] = "1\0";;
+    ck_assert_int_eq(s21_memcmp(s1, s2, 5), memcmp(s1, s2, 5));
 }
 END_TEST
 
 START_TEST(s21_memcmp_2) {
-    unsigned char s1[537] = "1234\0";
-    unsigned char s2[573] = "5678\0";
-    ck_assert_int_eq(s21_memcmp(s1, s2, 15), memcmp(s1, s2, 15));
+    unsigned char s1[10] = "1234\0";
+    unsigned char s2[10] = "5678\0";
+    ck_assert_int_eq(s21_memcmp(s1, s2, 5), memcmp(s1, s2, 5));
 }
 END_TEST
 
 START_TEST(s21_memcmp_3) {
-    unsigned char s1[15] = "Hello";
-    unsigned char s2[20] = "Hello world";
-    ck_assert_int_eq(s21_memcmp(s1, s2, 15), memcmp(s1, s2, 15));
+    unsigned char s1[20] = "Hello\0";
+    unsigned char s2[20] = "Hello world\0";
+    ck_assert_int_eq(s21_memcmp(s1, s2, 7), memcmp(s1, s2, 7));
 }
 END_TEST
 
 START_TEST(s21_memcmp_4) {
-    unsigned char s1[20] = "Hello";
-    unsigned char s2[20] = "Bye";
-    ck_assert_int_eq(s21_memcmp(s1, s2, 15), memcmp(s1, s2, 15));
+    unsigned char s1[10] = "Hello\0";
+    unsigned char s2[10] = "Bye\0";
+    ck_assert_int_eq(s21_memcmp(s1, s2, 10), memcmp(s1, s2, 10));
 }
 END_TEST
 
 
 START_TEST(s21_memcpy_1) {
-    char str1[20] = "42";
-    char str2[20] = "Hello";
+    char str1[20] = "42\0";
+    char str2[20] = "Hello\0";
     ck_assert_str_eq(s21_memcpy(str1, str2, 20), memcpy(str1, str2, 20));
 }
 END_TEST
@@ -213,7 +213,7 @@ END_TEST
 
 START_TEST(s21_memset_8) {
     char str[3] = "\0";
-    ck_assert_str_eq(s21_memset(str, 'm', 3), memset(str, 'H', 3));
+    ck_assert_str_eq(s21_memset(str, 'm', 1), memset(str, 'H', 1));
 }
 END_TEST
 
@@ -962,7 +962,7 @@ START_TEST(test_p_sprintf) {
     char *f = "Hello";
     int *g = &digit;
 
-    ck_assert_int_eq(s21_sprintf(str, "char p - %p, int p - %-p", f, g),
+    ck_assert_int_eq(s21_sprintf(str, "char p - %p, int p - %-p", f, &g),
     sprintf(str2, "char p - %p, int p - %-p", f, g));
     ck_assert_int_eq(s21_sprintf(str, "char p - %20p, int p - %-5p", f, g),
     sprintf(str2, "char p - %20p, int p - %-5p", f, g));
@@ -1010,7 +1010,7 @@ START_TEST(test_n_sprintf) {
 
 
 START_TEST(s21_trim_1) {
-    const char *s1 = "88Hello my world888";
+    const char *s1 = "88Hello my world888\0";
     const char *s2 = "8";
     char *a = s21_trim(s1, s2);
     ck_assert_str_eq(a, "Hello my world");
@@ -1018,7 +1018,7 @@ START_TEST(s21_trim_1) {
 } END_TEST
 
 START_TEST(s21_trim_2) {
-    const char *s1 = "11Hello world321\0";
+    const char *s1 = "11Hello world321";
     const char *s2 = "321";
     char *a = s21_trim(s1, s2);
     ck_assert_str_eq(a, "Hello world");

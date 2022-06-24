@@ -55,4 +55,10 @@ void         *s21_to_lower(const char *str);
 void         *s21_insert(const char *src, const char *str, s21_size_t start_index);
 void         *s21_trim(const char *src, const char *trim_chars);
 
+void         delete_first_letter(char *str);
+void         delete_left_part(char *result, const char *src, const char *trim_chars);
+void         delete_right_part(char *result, const char *src, const char *trim_chars);
+void         *s21_to_lo(const char *str);
+void         *s21_to_up(const char *str);
+
 #endif  // SRC_S21_STRING_H_

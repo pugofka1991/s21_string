@@ -12,12 +12,21 @@
 
 
 void *s21_memchr(const void *str, int c, s21_size_t n) {
-    const unsigned char *p = (const unsigned char *)str;
-    for (s21_size_t i = 0; i < n; i++)
-        if (p[i] == (unsigned char)c)
-            return (void*)(p + i);
-    return S21_NULL;
+    unsigned char *point = S21_NULL;
+    unsigned char *strcp = (unsigned char*)str;
+
+    while (n != 0) {
+        if (*strcp != (unsigned char)c) {
+            strcp++;
+        } else {
+            point = strcp;
+            break;
+        }
+        n--;
+    }
+    return point;
 }
+
 
 int s21_memcmp(const void *str1, const void *str2, s21_size_t n) {
     int res = 0;
@@ -200,7 +209,7 @@ s21_size_t s21_strlen(const char *str) {
 
 char *s21_strerror(int errnum) {
     char *errors[] = S21_ERRORS;
-    char *msg = calloc(sizeof(char), 30);
+    char *msg = malloc(sizeof(char) * 30);
     if (msg != S21_NULL) {
         if (errnum <= 0 || errnum >= S21_ERRNUMS) {
             s21_sprintf(msg, "Unknown error: %d", errnum);
@@ -270,7 +279,7 @@ char *s21_strstr(const char *haystack, const char *needle) {
 
 char *s21_strtok(char *str, const char *delim) {
     char* input = str;
-    char* result = calloc((s21_strlen(input) + 1), sizeof(char));
+    char* result = malloc((s21_strlen(input) + 1) * sizeof(char));
     if (result != S21_NULL) {
         int i = 0;
         if (input != S21_NULL) {
@@ -419,17 +428,17 @@ int s21_sprintf(char *str, const char *format, ...) {
                     s21_itoa(va_arg(arg, unsigned long), number, 8, 1);
                 } else if (*format == 'x') {
                     s21_itoa(va_arg(arg, unsigned int), number, 16, 1);
-                    s21_to_lower(number);
+                    s21_to_lo(number);
                     if (flags[GRID] == '#')
                         field_width -= 2;
                 } else if (*format == 'X') {
                     s21_itoa(va_arg(arg, unsigned int), number, 16, 1);
-                    s21_to_upper(number);
+                    s21_to_up(number);
                     if (flags[GRID] == '#')
                         field_width -= 2;
                 } else if (*format == 'p') {
                     s21_itoa((long)va_arg(arg, void *), number, 16, 1);
-                    s21_to_lower(number);
+                    s21_to_lo(number);
                     field_width -= 2;
                 } else {
                     s21_itoa(va_arg(arg, int), number, 10, 1);
@@ -592,19 +601,92 @@ void *s21_insert(const char *src, const char *str, s21_size_t start_index) {
     return str_insert;
 }
 
-void* s21_trim(const char *src, const char *trim_chars) {
-    if (!src)
-        return S21_NULL;
-    if (!trim_chars || *trim_chars == '\0')
-        trim_chars = " \n\b\t";
-    int l = 0, r = s21_strlen(src) - 1, j = 0;
-    for (; src[l] && s21_strchr(trim_chars, src[l]); l++) { }
-    for (; l < r && s21_strchr(trim_chars, src[r]); r--) { }
-    char* res = malloc(r - l + 2);
-    if (res) {
-        for (int i = l; i <= r; i++, j++)
-            res[j] = src[i];
-        res[j] = '\0';
+void *s21_trim(const char *src, const char *trim_chars) {
+    int is_error = 0;
+    char *result = S21_NULL;
+    if (src) {
+        char default_chars[7] = " \t\n\v\r\f\0";
+        if (trim_chars == S21_NULL || s21_strlen(trim_chars) == 0) trim_chars = default_chars;
+        result = (char *) calloc(s21_strlen(src) + 10, sizeof(char));
+        if (result == S21_NULL) {
+            is_error = 1;
+        }
+        s21_strcpy(result, (char *)src);
+        delete_left_part(result, src, trim_chars);
+        delete_right_part(result, src, trim_chars);
+    } else {
+        is_error = 1;
     }
-    return (void*)res;
+    return is_error ? S21_NULL : (void *)result;
 }
+
+void delete_first_letter(char *str) {
+    s21_size_t counter = 0;
+    while (str[counter]) {
+        str[counter] = str[counter + 1];
+        counter++;
+    }
+}
+
+void delete_left_part(char *result, const char *src, const char *trim_chars) {
+    s21_size_t format_length = s21_strlen(trim_chars);
+    s21_size_t str_length = s21_strlen(src);
+    for (s21_size_t i = 0; i < str_length; i++) {
+        int is_break = 0;
+        for (s21_size_t j = 0; j < format_length; j++) {
+            if (src[i] == trim_chars[j]) {
+                delete_first_letter(result);
+                break;
+            }
+            if (j == format_length - 1 && src[i] != trim_chars[format_length]) {
+                is_break = 1;
+            }
+        }
+        if (is_break) break;
+    }
+}
+
+void delete_right_part(char *result, const char *src, const char *trim_chars) {
+    s21_size_t format_length = s21_strlen(trim_chars);
+    s21_size_t result_length = s21_strlen(result);
+    for (int i = (int) result_length - 1; i >= 0; i--) {
+        int is_break = 0;
+        for (s21_size_t j = 0; j < format_length; j++) {
+            if (result[i] == trim_chars[j]) {
+                result[i] = '\0';
+                break;
+            }
+            if (j == format_length - 1 && src[i] != trim_chars[format_length]) {
+                is_break = 1;
+            }
+        }
+        if (is_break) break;
+    }
+}
+
+void *s21_to_lo(const char *str) {
+    char *s = (char*)str;
+    if (s != S21_NULL) {
+        while (*s != '\0') {
+            if (*s >= 'A' && *s <= 'Z') {
+                *s += 32;
+            }
+            s++;
+        }
+    }
+    return s;
+}
+
+void *s21_to_up(const char *str) {
+    char *s = (char*)str;
+    if (s != S21_NULL) {
+        while (*s != '\0') {
+            if (*s >= 'a' && *s <= 'z') {
+                *s -= 32;
+            }
+            s++;
+        }
+    }
+    return s;
+}
+

@@ -2,7 +2,7 @@ CC = gcc
 CFLAGC = -Wall -Werror -Wextra -c -g -std=c11
 LDFLAGS := -lcheck -fprofile-arcs
 SOURCES := s21_string.c s21_ftoi.c s21_itoa.c s21_lib.c s21_string_tests.c
-GCOVFLAGS := #--coverage
+GCOVFLAGS := --coverage
 OBJECTS := $(SOURCES:.c=.o)
 
 all: test s21_string.a gcov_report
@@ -44,5 +44,3 @@ clean:
 	rm -rf *.css
 	rm -rf *.functions.html
 	rm -rf *.html
-
-
