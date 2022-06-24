@@ -10,7 +10,7 @@ all: test s21_string.a gcov_report
 .c.o: 
 	$(CC) $(CFLAGC) $< -o $@
 
-s21_string.a: s21_string.o
+s21_string.a: $(SOURCES)
 	$(CC) $(CFLAGC) s21_string.c s21_ftoi.c s21_itoa.c s21_lib.c
 	ar rcs s21_string.a s21_string.o s21_ftoi.o s21_itoa.o s21_lib.o
 	ranlib s21_string.a
